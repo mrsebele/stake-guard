@@ -1,51 +1,52 @@
-# Bridge Safe - Cross-Chain Bridge
+# Stake Guard - Validator Staking System
 
-Multi-signature cross-chain bridge with fraud proofs and validator consensus.
+Advanced staking protocol with delegation, slashing mechanics, and automated rewards distribution.
 
-## Features
-- **Multi-Sig Validation**: 3-of-5 validator consensus required
-- **Fraud Proofs**: 24-hour challenge period for security
-- **Multi-Chain**: Support for Ethereum, Polygon, BSC
-- **Emergency Mode**: User fund recovery during emergencies
-- **Dynamic Fees**: Chain-specific fee multipliers
+## Core Features
+- **Validator Registration**: Stake 50,000+ STX to become a validator
+- **Delegation**: Delegate 1,000+ STX to earn rewards
+- **Slashing**: Penalty mechanism for misbehaving validators
+- **Unbonding**: 14-day cooldown for withdrawals
+- **Jailing**: Auto-jail after 3 slashing events
 
-## Usage
+## Quick Usage
 
-### Bridge STX Out
+### Become Validator
 ```clarity
-(contract-call? .bridgesafe lock-for-bridge u10000000 "0x742d35Cc6634C0532925a3b844Bc9e7595f8fA49" "ethereum")
-;; Returns: {transfer-id: u0, amount: u9970000, fee: u30000}
+(contract-call? .stakeguard register-validator u50000000000 u500) ;; 50k STX, 5% commission
 ```
 
-### Claim Bridged Assets
+### Delegate to Validator
 ```clarity
-(contract-call? .bridgesafe claim-from-bridge 
-  "0xabc123..." 
-  'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7 
-  u10000000 
-  "ethereum"
-  (list 'SP_VAL1 'SP_VAL2 'SP_VAL3))
+(contract-call? .stakeguard delegate 'SP_VALIDATOR u1000000000) ;; 1k STX
 ```
 
-### Submit Fraud Proof
+### Claim Rewards
 ```clarity
-(contract-call? .bridgesafe submit-fraud-proof u0 "Evidence of double spend...")
+(contract-call? .stakeguard claim-rewards 'SP_VALIDATOR)
 ```
 
-### Execute After Challenge Period
+### Undelegate
 ```clarity
-(contract-call? .bridgesafe execute-transfer u0)
+(contract-call? .stakeguard undelegate 'SP_VALIDATOR u1000000000)
+;; Returns: {amount: u1000000000, unbonding-id: u0, unlock-block: u12345}
+```
+
+### Claim After Unbonding
+```clarity
+(contract-call? .stakeguard claim-unbonded u0) ;; Use unbonding-id
 ```
 
 ## Key Parameters
-- Min Lock: 1 STX
-- Bridge Fee: 0.3%
-- Challenge Period: ~24 hours
-- Validator Threshold: 3 signatures
-- Supported Chains: Ethereum (1x fee), Polygon (0.5x), BSC (0.75x)
+- Min Validator Stake: 50,000 STX
+- Min Delegation: 1,000 STX  
+- Unbonding Period: ~14 days
+- Max Commission: 10%
+- Slash Rate: 5%
+- Jail Duration: ~60 days after 3 slashes
 
 ## Security
-- Validator consensus prevents unauthorized mints
-- Challenge period allows fraud detection
-- Emergency withdrawals protect user funds
-- Slashing mechanism for dishonest validators
+- Slashing protection for network security
+- Unbonding period prevents bank runs
+- Jailing system for repeat offenders
+- Commission caps protect delegators
